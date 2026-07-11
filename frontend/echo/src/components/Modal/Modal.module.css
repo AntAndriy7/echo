@@ -1,0 +1,82 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-overlay);
+    backdrop-filter: var(--blur-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn var(--transition-speed) ease-out;
+}
+
+.modal {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow-modal);
+    display: flex;
+    flex-direction: column;
+    animation: slideUp var(--transition-speed) ease-out;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-main);
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-speed) ease;
+}
+
+.closeButton:hover {
+    color: var(--text-main);
+}
+
+.content {
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 0 24px 24px 24px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}

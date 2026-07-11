@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: echo
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: 5000
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-expiration: 900000
+    refresh-expiration: 604800000
+  allowed-origins: ${ALLOWED_ORIGINS:*}
+
+logging:
+  level:
+    root: INFO
+    com.echo: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

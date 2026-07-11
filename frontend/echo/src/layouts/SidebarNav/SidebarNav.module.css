@@ -1,0 +1,98 @@
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.sidebarBtn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 44px;
+    padding: 12px 20px;
+    border-radius: 99px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: var(--font-weight-regular);
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-main);
+    transition:
+            background-color var(--transition-speed) ease,
+            color var(--transition-speed) ease;
+}
+
+.sidebarBtnDefault:hover {
+    background-color: var(--states-hover);
+}
+
+.activeBtn {
+    font-weight: var(--font-weight-bold);
+}
+
+.sidebarBtnDanger {
+    margin-top: 8px;
+}
+
+.sidebarBtnDanger:hover {
+    background-color: var(--error-alpha-10);
+    color: var(--error);
+}
+
+.chatLinkWrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.chatLinkContent {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
+.unreadBadge {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--accent-yellow);
+    box-shadow: var(--shadow-neon, 0 0 8px var(--accent-yellow));
+    flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+    .sidebarBtn {
+        padding: 12px;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+    }
+
+    .sidebarBtn span {
+        display: none !important;
+    }
+
+    .chatLinkWrapper {
+        justify-content: center;
+        position: relative;
+    }
+
+    .chatLinkContent {
+        justify-content: center;
+        gap: 0;
+    }
+
+    .unreadBadge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        border: 1px solid var(--bg-surface);
+    }
+}

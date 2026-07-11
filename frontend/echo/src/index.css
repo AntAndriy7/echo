@@ -1,0 +1,64 @@
+:root {
+  --bg-main: #030200;
+  --bg-surface: #0A0A0A; /* #0A0A0A #0e0e0e #101010 */
+  --accent-yellow: #FFD43B;
+  --accent-yellow-hover: #F5C327;
+
+  --blur-main: blur(4px);
+
+  --text-main: #F8F9FA; /* E4E6EB */
+  --text-muted: #7a7a7a;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --border-subtle: rgba(255, 255, 255, 0.15);
+  --border-focus: rgba(255, 255, 255, 0.6);
+
+  --border-radius: 4px;
+  --transition-speed: 0.2s;
+
+  --error: #FF4D4D;
+  --error-alpha-10: rgba(255, 77, 77, 0.1);
+  --error-alpha-50: rgba(255, 77, 77, 0.5);
+
+  --bg-glass: rgba(3, 2, 0, 0.75);
+
+  --bg-overlay: rgba(0, 0, 0, 0.75);
+  --shadow-modal: 0 0 32px rgba(0, 0, 0, 0.8);
+
+  --feed-max-width: 680px;
+  --shadow-dropdown: 0 16px 40px rgba(0, 0, 0, 0.6);
+
+  --states-hover: rgb(36 37 39);
+  --states-active-bg: rgb(24 24 24);
+
+  --btn-primary-text: #030200;
+  --btn-primary-bg: #F5F6F7;
+  --btn-primary-hover-bg: #D4D8DC;
+
+  --btn-secondary-text: rgba(255, 255, 255, 0.9);
+  --btn-secondary-border: rgba(255, 255, 255, 0.6);
+  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.05);
+
+  --btn-dropdown-hover-bg: rgba(255, 255, 255, 0.1);
+
+  --btn-disabled-bg: #252525;
+  --btn-disabled-text: #78756c;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}

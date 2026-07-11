@@ -1,0 +1,116 @@
+.button {
+    border: 1px solid transparent;
+    font-family: inherit;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: -0.2px;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--border-radius, 4px);
+    white-space: nowrap;
+    user-select: none;
+
+    transition:
+            background-color var(--transition-speed, 0.2s) ease,
+            border-color var(--transition-speed, 0.2s) ease,
+            color var(--transition-speed, 0.2s) ease,
+            transform 0.1s ease;
+}
+
+.sm {
+    padding: 6px 16px;
+    font-size: 14px;
+}
+
+.md {
+    padding: 10px 24px;
+    font-size: 16px;
+}
+
+.rounded {
+    border-radius: 99px;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.button:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.button:disabled {
+    cursor: default;
+}
+
+.primary {
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+}
+
+.primary:hover:not(:disabled) {
+    background-color: var(--btn-primary-hover-bg);
+}
+
+.primary:disabled {
+    background-color: var(--btn-disabled-bg);
+    color: var(--btn-disabled-text);
+}
+
+.secondary {
+    background-color: transparent;
+    border-color: var(--btn-secondary-border);
+    color: var(--btn-secondary-text);
+}
+
+.secondary:hover {
+    background-color: var(--btn-secondary-hover-bg);
+    border-color: var(--btn-secondary-text);
+}
+
+.danger {
+    background-color: transparent;
+    border-color: var(--error-alpha-50);
+    color: var(--error);
+}
+
+.danger:hover {
+    background-color: var(--error-alpha-10);
+    border-color: var(--error);
+}
+
+.dropdownPrimary {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    padding: 14px 16px;
+    text-align: left;
+    justify-content: flex-start;
+    font-size: 15px;
+    font-weight: var(--font-weight-semibold);
+    width: 100%;
+    border-radius: 0;
+}
+
+.dropdownPrimary:hover:not(:disabled) {
+    background-color: var(--btn-dropdown-hover-bg);
+}
+
+.dropdownDanger {
+    background: none;
+    border: none;
+    color: var(--error);
+    padding: 14px 16px;
+    text-align: left;
+    justify-content: flex-start;
+    font-size: 15px;
+    font-weight: var(--font-weight-semibold);
+    width: 100%;
+    border-radius: 0;
+}
+
+.dropdownDanger:hover:not(:disabled) {
+    background-color: var(--error-alpha-10);
+}

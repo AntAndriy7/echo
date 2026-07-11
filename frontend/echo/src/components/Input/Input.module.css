@@ -1,0 +1,127 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 28px;
+    position: relative;
+}
+
+.inputContainer {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.input {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--border-radius, 4px);
+    color: var(--text-main);
+    font-size: 16px;
+    padding: 16px;
+    outline: none;
+    font-family: inherit;
+
+    transition:
+            border-color var(--transition-speed, 0.2s) ease,
+            box-shadow var(--transition-speed, 0.2s) ease;
+}
+
+.label {
+    position: absolute;
+    left: 12px;
+    top: 16px;
+    color: var(--text-muted);
+    font-size: 16px;
+    padding: 0 4px;
+    background-color: var(--bg-surface);
+    pointer-events: none;
+    transition: all var(--transition-speed, 0.2s) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input:focus ~ .label,
+.input:not(:placeholder-shown) ~ .label {
+    top: -8px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.input:focus {
+    border-color: var(--accent-yellow);
+    box-shadow: inset 0 0 0 1px var(--accent-yellow);
+}
+
+.input:focus ~ .label {
+    color: var(--accent-yellow);
+}
+
+.wrapper.hasError .input {
+    border-color: var(--error);
+}
+
+.wrapper.hasError .input:focus {
+    border-color: var(--error);
+    box-shadow: inset 0 0 0 1px var(--error);
+}
+
+.wrapper.hasError .label,
+.wrapper.hasError .input:focus ~ .label {
+    color: var(--error);
+}
+
+.errorText {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--error);
+    font-size: 12px;
+    font-weight: var(--font-weight-regular);
+    white-space: nowrap;
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+    -webkit-transition: background-color 5000s ease-in-out 0s;
+    transition: background-color 5000s ease-in-out 0s;
+    -webkit-text-fill-color: var(--text-main) !important;
+}
+
+.eyeButton {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-speed, 0.2s) ease;
+    z-index: 2;
+}
+
+.eyeButton:hover {
+    color: var(--text-main);
+}
+
+.wrapper.hasError .eyeButton {
+    color: var(--error);
+}
+
+.wrapper.hasError .eyeButton:hover {
+    color: var(--text-main);
+}
+
+.inputPassword {
+    padding-right: 48px;
+}

@@ -1,0 +1,358 @@
+.container {
+    display: flex;
+    height: 100%;
+    background-color: var(--bg-main);
+}
+
+.sidebar {
+    width: 350px;
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-main);
+}
+
+.header {
+    padding: 24px 24px 16px 24px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-main);
+    margin: 0 0 16px 0;
+    letter-spacing: -0.5px;
+}
+
+.searchInput {
+    width: 100%;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 10px 16px;
+    color: var(--text-main);
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--transition-speed) ease;
+}
+
+.searchInput:focus {
+    border-color: var(--accent-yellow);
+}
+
+.searchInput::placeholder {
+    color: var(--text-muted);
+}
+
+.chatList {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.listStatusMessage {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.chatItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition:
+            background-color var(--transition-speed) ease,
+            border-color var(--transition-speed) ease;
+    border-left: 2px solid transparent;
+}
+
+.chatItem:hover {
+    background-color: var(--states-hover);
+}
+
+.activeChatItem {
+    background-color: var(--states-active-bg);
+    border-left: 2px solid var(--accent-yellow);
+}
+
+.chatInfo {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    gap: 4px;
+}
+
+.chatTopRow,
+.chatBottomRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.chatName {
+    font-size: 15px;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chatListTime {
+    font-size: 11px;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.chatPreview {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.unreadBadge {
+    background-color: var(--accent-yellow);
+    color: var(--btn-primary-text);
+    font-size: 11px;
+    font-weight: var(--font-weight-semibold);
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    flex-shrink: 0;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-main);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.avatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chatArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-main);
+    height: 100%;
+    position: relative;
+}
+
+.chatEmptyState {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+    height: 100%;
+}
+
+.emptyStateTitle {
+    font-size: 22px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-main);
+    margin: 0 0 8px 0;
+}
+
+.emptyStateSubtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin: 0 0 24px 0;
+    max-width: 300px;
+    line-height: 1.5;
+}
+
+.activeChatWindow {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.chatHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    background-color: var(--bg-main);
+}
+
+.avatarHeader {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 16px !important;
+}
+
+.headerMeta {
+    display: flex;
+    flex-direction: column;
+}
+
+.statusOnline {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.statusOnline.online {
+    color: var(--accent-yellow) !important;
+}
+
+.messagesContainer {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.messageRow {
+    display: flex;
+    width: 100%;
+}
+
+.messageRowMy {
+    justify-content: flex-end;
+}
+
+.messageRowTheir {
+    justify-content: flex-start;
+}
+
+.messageBox {
+    max-width: 60%;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 15px;
+    line-height: 1.5;
+    word-break: break-word;
+    position: relative;
+}
+
+.messageTheir {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main);
+}
+
+.messageMy {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--accent-yellow);
+    color: var(--text-main);
+}
+
+.messageText {
+    white-space: pre-wrap;
+}
+
+.metaSpacer {
+    display: inline-block;
+    width: 54px;
+    height: 1px;
+}
+
+.messageTheir .metaSpacer {
+    width: 36px;
+}
+
+.messageMeta {
+    position: absolute;
+    bottom: 10px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.messageTime {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1;
+}
+
+.dateDivider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0 12px 0;
+    width: 100%;
+}
+
+.dateDivider::before,
+.dateDivider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--border-subtle);
+}
+
+.dateDivider span {
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-muted);
+    user-select: none;
+}
+
+.inputContainer {
+    padding: 24px;
+    border-top: 1px solid var(--border-subtle);
+    background-color: var(--bg-main);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.inputField {
+    flex: 1;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 24px;
+    padding: 12px 20px;
+    color: var(--text-main);
+    font-size: 15px;
+    outline: none;
+    transition: border-color var(--transition-speed) ease;
+}
+
+.inputField:focus {
+    border-color: var(--accent-yellow);
+}
+
+.inputField::placeholder {
+    color: var(--text-muted);
+}

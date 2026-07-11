@@ -1,0 +1,57 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: var(--bg-main);
+}
+
+.formCard {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    margin: 0 0 34px 0;
+    font-size: 28px;
+    text-align: center;
+    color: var(--text-main);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.5px;
+}
+
+.error {
+    color: var(--error);
+    border: 1px solid var(--error-alpha-50);
+    background-color: var(--error-alpha-10);
+    padding: 12px;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    text-align: center;
+    margin: 0 0 24px 0;
+}
+
+.footerText {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 24px;
+}
+
+.link {
+    color: var(--accent-yellow);
+    text-decoration: none;
+    font-weight: var(--font-weight-regular);
+    margin-left: 5px;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
