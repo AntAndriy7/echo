@@ -5,6 +5,7 @@ import com.echo.security.service.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,8 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import java.util.Collections;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -22,12 +24,13 @@ public class WebSocketEventListener {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
+    private final StringRedisTemplate redisTemplate;
 
-    private final Set<String> onlineUsers = ConcurrentHashMap.newKeySet();
+    private static final String PRESENCE_HASH_KEY = "users:presence";
+    private static final String SESSION_KEY_PREFIX = "ws:session:";
 
     private String getActualUsername(StompHeaderAccessor accessor) {
         if (accessor.getUser() == null) return null;
-
         try {
             UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor.getUser();
             CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
@@ -45,28 +48,53 @@ public class WebSocketEventListener {
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         String username = getActualUsername(accessor);
+        String sessionId = accessor.getSessionId();
 
-        if (username != null) {
-            onlineUsers.add(username);
-            log.info("Користувач підключився: {}", username);
-            messagingTemplate.convertAndSend("/topic/presence", new PresencePayload(username, true));
+        if (username != null && sessionId != null) {
+            String sessionKey = SESSION_KEY_PREFIX + sessionId;
+
+            Boolean alreadyExists = redisTemplate.hasKey(sessionKey);
+            if (Boolean.TRUE.equals(alreadyExists)) return;
+
+            redisTemplate.opsForValue().set(sessionKey, username, 24, TimeUnit.HOURS);
+            Long activeSessions = redisTemplate.opsForHash().increment(PRESENCE_HASH_KEY, username, 1);
+            log.info("Користувач {} підключився (Сесія: {}). Активних сесій: {}", username, sessionId, activeSessions);
+
+            if (activeSessions != null && activeSessions == 1) {
+                messagingTemplate.convertAndSend("/topic/presence", new PresencePayload(username, true));
+            }
         }
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        String username = getActualUsername(accessor);
+        String sessionId = accessor.getSessionId();
 
-        if (username != null) {
-            onlineUsers.remove(username);
-            log.info("Користувач відключився: {}", username);
-            messagingTemplate.convertAndSend("/topic/presence", new PresencePayload(username, false));
+        if (sessionId != null) {
+            String sessionKey = SESSION_KEY_PREFIX + sessionId;
+            String username = redisTemplate.opsForValue().get(sessionKey);
+
+            if (username != null) {
+                redisTemplate.delete(sessionKey);
+
+                Long activeSessions = redisTemplate.opsForHash().increment(PRESENCE_HASH_KEY, username, -1);
+                log.info("Користувач {} відключив сесію {}. Залишилось сесій: {}", username, sessionId, activeSessions);
+
+                if (activeSessions == null || activeSessions <= 0) {
+                    redisTemplate.opsForHash().delete(PRESENCE_HASH_KEY, username);
+                    messagingTemplate.convertAndSend("/topic/presence", new PresencePayload(username, false));
+                }
+            }
         }
     }
 
     public Set<String> getOnlineUsers() {
-        return onlineUsers;
+        Set<Object> keys = redisTemplate.opsForHash().keys(PRESENCE_HASH_KEY);
+        if (keys == null || keys.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return (Set<String>) (Set<?>) keys;
     }
 
     public record PresencePayload(String username, boolean isOnline) {}

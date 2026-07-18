@@ -56,6 +56,52 @@ public class ChatService {
         return messageMapper.toResponse(savedMessage);
     }
 
+    @Transactional
+    public void saveAndBroadcastMessage(UUID chatId, MessageRequest request, UUID senderId) {
+        // Зберігаємо повідомлення в БД
+        MessageResponse savedMessage = saveMessage(chatId, request, senderId);
+
+        // Дістаємо чат (Hibernate візьме його з кешу L1, зайвого SELECT не буде)
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new IllegalArgumentException("Чат не знайдено"));
+
+        // Розсилка кожному учаснику через його приватну чергу
+        for (User participant : chat.getParticipants()) {
+            messagingTemplate.convertAndSendToUser(
+                    participant.getUsername(),
+                    "/queue/messages",
+                    savedMessage
+            );
+        }
+    }
+
+    @Transactional
+    public void markChatAsRead(UUID chatId, UUID currentUserId) {
+        int updatedCount = messageRepository.markAllAsRead(chatId, currentUserId);
+
+        // Якщо були оновлені повідомлення — сповіщаємо співрозмовника
+        if (updatedCount > 0) {
+            Chat chat = chatRepository.findById(chatId)
+                    .orElseThrow(() -> new IllegalArgumentException("Чат не знайдено"));
+
+            String partnerUsername = chat.getParticipants().stream()
+                    .filter(u -> !u.getId().equals(currentUserId))
+                    .map(User::getUsername)
+                    .findFirst()
+                    .orElse(null);
+
+            if (partnerUsername != null) {
+                Map<String, String> payload = Map.of("chatId", chatId.toString());
+
+                messagingTemplate.convertAndSendToUser(
+                        partnerUsername,
+                        "/queue/read-receipts",
+                        payload
+                );
+            }
+        }
+    }
+
     @Transactional(readOnly = true)
     public boolean hasUnreadMessages(UUID userId) {
         return messageRepository.existsUnreadMessagesForUser(userId);
@@ -116,39 +162,5 @@ public class ChatService {
         Chat savedChat = chatRepository.save(newChat);
 
         return chatMapper.toResponse(savedChat, currentUserId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<String> getParticipantUsernames(UUID chatId) {
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new IllegalArgumentException("Чат не знайдено"));
-        return chat.getParticipants().stream()
-                .map(User::getUsername)
-                .toList();
-    }
-
-    @Transactional
-    public void markChatAsRead(UUID chatId, UUID currentUserId) {
-        List<Message> unreadMessages = messageRepository.findAllUnreadMessages(chatId, currentUserId);
-
-        if (!unreadMessages.isEmpty()) {
-            for (Message message : unreadMessages) {
-                message.setRead(true);
-            }
-            messageRepository.saveAll(unreadMessages);
-        }
-
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new IllegalArgumentException("Чат не знайдено"));
-
-        String partnerUsername = chat.getParticipants().stream()
-                .filter(u -> !u.getId().equals(currentUserId))
-                .map(User::getUsername)
-                .findFirst()
-                .orElse(null);
-
-        if (partnerUsername != null) {
-            messagingTemplate.convertAndSend("/topic/user/" + partnerUsername + "/read", Optional.of(Map.of("chatId", chatId)));
-        }
     }
 }

@@ -43,7 +43,7 @@ export const DashboardLayout = () => {
                 setIsConnected(true);
                 setClient(stompClient);
 
-                const userTopic = `/topic/user/${user?.username}`;
+                const userTopic = '/user/queue/messages';
                 globalSubRef.current = stompClient.subscribe(userTopic, (message) => {
                     const newMsg = JSON.parse(message.body);
                     addGlobalMessage(newMsg);
@@ -54,7 +54,7 @@ export const DashboardLayout = () => {
                     }
                 });
 
-                const readTopic = `/topic/user/${user?.username}/read`;
+                const readTopic = '/user/queue/read-receipts';
                 stompClient.subscribe(readTopic, (message) => {
                     const payload = JSON.parse(message.body);
                     useWebSocketStore.getState().setReadReceipt({
