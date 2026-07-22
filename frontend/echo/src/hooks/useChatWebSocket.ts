@@ -6,7 +6,7 @@ import { chatApi } from '../api/chatApi';
 
 export const useChatWebSocket = (chatId: string | undefined) => {
     const { user } = useAuthStore();
-    const { client, globalMessages, readReceipt } = useWebSocketStore();
+    const { client, latestMessage, readReceipt } = useWebSocketStore();
     const [messages, setMessages] = useState<MessageResponse[]>([]);
 
     useEffect(() => {
@@ -27,23 +27,21 @@ export const useChatWebSocket = (chatId: string | undefined) => {
     }, [chatId]);
 
     useEffect(() => {
-        if (!chatId || globalMessages.length === 0) return;
+        if (!chatId || !latestMessage || latestMessage.chatId !== chatId) return;
 
-        const latestMessage = globalMessages[globalMessages.length - 1];
+        setMessages(prev => {
+            if (prev.some(m => m.id === latestMessage.id)) return prev;
+            return [...prev, latestMessage];
+        });
 
-        if (latestMessage.chatId === chatId) {
-            setMessages(prev => {
-                if (prev.some(m => m.id === latestMessage.id)) return prev;
-                return [...prev, latestMessage];
-            });
-
-            if (latestMessage.senderId !== user?.id) {
-                chatApi.markAsRead(chatId).catch(err =>
-                    console.error('Помилка автопрочитання:', err)
-                );
-            }
+        if (latestMessage.senderId !== user?.id) {
+            chatApi.markAsRead(chatId).catch(err =>
+                console.error('Помилка автопрочитання:', err)
+            );
         }
-    }, [globalMessages, chatId, user?.id]);
+
+        useWebSocketStore.getState().setLatestMessage(null);
+    }, [latestMessage, chatId, user?.id]);
 
     useEffect(() => {
         if (!readReceipt || readReceipt.chatId !== chatId) return;

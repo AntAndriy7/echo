@@ -5,15 +5,14 @@ import type {MessageResponse} from '../types';
 interface WebSocketState {
     client: Client | null;
     isConnected: boolean;
-    globalMessages: MessageResponse[];
+    latestMessage: MessageResponse | null;
     onlineUsers: string[];
     readReceipt: { chatId: string; timestamp: number } | null;
     hasUnread: boolean;
 
     setClient: (client: Client) => void;
     setIsConnected: (status: boolean) => void;
-    addGlobalMessage: (message: MessageResponse) => void;
-    clearGlobalMessages: () => void;
+    setLatestMessage: (message: MessageResponse | null) => void;
     setOnlineUsers: (users: string[]) => void;
     updateUserPresence: (username: string, isOnline: boolean) => void;
     setReadReceipt: (receipt: { chatId: string; timestamp: number } | null) => void;
@@ -26,25 +25,20 @@ interface WebSocketState {
 export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     client: null,
     isConnected: false,
-    globalMessages: [],
+    latestMessage: null,
     onlineUsers: [],
     readReceipt: null,
     hasUnread: false,
     activeChatId: null,
 
     setReadReceipt: (receipt) => set({ readReceipt: receipt }),
-
     setHasUnread: (hasUnread) => set({ hasUnread }),
     setActiveChatId: (id) => set({ activeChatId: id }),
 
     setClient: (client) => set({ client }),
     setIsConnected: (isConnected) => set({ isConnected }),
 
-    addGlobalMessage: (message) => set((state) => ({
-        globalMessages: [...state.globalMessages, message]
-    })),
-
-    clearGlobalMessages: () => set({ globalMessages: [] }),
+    setLatestMessage: (latestMessage) => set({ latestMessage }),
 
     setOnlineUsers: (users) => set({ onlineUsers: users }),
 
@@ -65,6 +59,6 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     disconnect: () => {
         const { client } = get();
         if (client) client.deactivate();
-        set({ client: null, isConnected: false, globalMessages: [], onlineUsers: [], readReceipt: null, hasUnread: false, activeChatId: null });
+        set({ client: null, isConnected: false, latestMessage: null, onlineUsers: [], readReceipt: null, hasUnread: false, activeChatId: null });
     }
 }));

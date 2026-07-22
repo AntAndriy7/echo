@@ -19,12 +19,9 @@ export const ChatPage = () => {
     const [selectedChat, setSelectedChat] = useState<ChatResponse | null>(null);
     const [typedMessage, setTypedMessage] = useState('');
 
-    const { onlineUsers, globalMessages, setActiveChatId } = useWebSocketStore();
+    const { onlineUsers, latestMessage, setActiveChatId } = useWebSocketStore();
     const { messages, sendMessage } = useChatWebSocket(selectedChat?.id);
 
-    const lastProcessedMessageId = useRef<string | null>(
-        globalMessages.length > 0 ? globalMessages[globalMessages.length - 1].id : null
-    );
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const isPartnerOnline = selectedChat ? onlineUsers.includes(selectedChat.username) : false;
@@ -68,10 +65,7 @@ export const ChatPage = () => {
     }, [location.state?.activeChatId]);
 
     useEffect(() => {
-        if (globalMessages.length === 0) return;
-
-        const latestMessage = globalMessages[globalMessages.length - 1];
-        if (lastProcessedMessageId.current === latestMessage.id) return;
+        if (!latestMessage) return;
 
         const isChatExists = chats.some(c => c.id === latestMessage.chatId);
 
@@ -82,12 +76,8 @@ export const ChatPage = () => {
                     useWebSocketStore.getState().setHasUnread(true);
                 })
                 .catch(err => console.error("Помилка завантаження нових чатів:", err));
-
-            lastProcessedMessageId.current = latestMessage.id;
             return;
         }
-
-        lastProcessedMessageId.current = latestMessage.id;
 
         setChats(prevChats => {
             const chatIndex = prevChats.findIndex(c => c.id === latestMessage.chatId);
@@ -114,19 +104,21 @@ export const ChatPage = () => {
             }
             return prevChats;
         });
-    }, [globalMessages, selectedChat, currentUser?.id]);
+    }, [latestMessage, selectedChat, currentUser?.id]);
 
     useEffect(() => {
         if (!selectedChat) return;
 
         if (selectedChat.unreadCount > 0) {
             chatApi.markAsRead(selectedChat.id).catch(err => console.error(err));
+
             setChats(prevChats => {
                 const updated = prevChats.map(c =>
                     c.id === selectedChat.id ? { ...c, unreadCount: 0 } : c
                 );
 
-                useWebSocketStore.getState().setHasUnread(updated.some(c => c.unreadCount > 0));
+                const stillHasUnread = updated.some(c => c.unreadCount > 0);
+                useWebSocketStore.getState().setHasUnread(stillHasUnread);
 
                 return updated;
             });

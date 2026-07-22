@@ -1,14 +1,12 @@
 package com.echo.config;
 
-import com.echo.repository.UserRepository;
-import com.echo.security.service.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -23,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 public class WebSocketEventListener {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
 
     private static final String PRESENCE_HASH_KEY = "users:presence";
@@ -32,12 +29,7 @@ public class WebSocketEventListener {
     private String getActualUsername(StompHeaderAccessor accessor) {
         if (accessor.getUser() == null) return null;
         try {
-            UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor.getUser();
-            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-
-            return userRepository.findById(userDetails.getId())
-                    .map(user -> user.getUsername())
-                    .orElse(null);
+            return accessor.getUser().getName();
         } catch (Exception e) {
             log.error("Помилка отримання username з сокету", e);
             return null;
@@ -53,10 +45,9 @@ public class WebSocketEventListener {
         if (username != null && sessionId != null) {
             String sessionKey = SESSION_KEY_PREFIX + sessionId;
 
-            Boolean alreadyExists = redisTemplate.hasKey(sessionKey);
-            if (Boolean.TRUE.equals(alreadyExists)) return;
+            Boolean isNewSession = redisTemplate.opsForValue().setIfAbsent(sessionKey, username, 24, TimeUnit.HOURS);
+            if (Boolean.FALSE.equals(isNewSession)) return;
 
-            redisTemplate.opsForValue().set(sessionKey, username, 24, TimeUnit.HOURS);
             Long activeSessions = redisTemplate.opsForHash().increment(PRESENCE_HASH_KEY, username, 1);
             log.info("Користувач {} підключився (Сесія: {}). Активних сесій: {}", username, sessionId, activeSessions);
 
@@ -98,4 +89,18 @@ public class WebSocketEventListener {
     }
 
     public record PresencePayload(String username, boolean isOnline) {}
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void clearActiveSessionsOnStartup() {
+        log.info("Очищення завислих WebSocket сесій у Redis при запуску сервера...");
+
+        redisTemplate.delete(PRESENCE_HASH_KEY);
+
+        Set<String> sessionKeys = redisTemplate.keys(SESSION_KEY_PREFIX + "*");
+        if (sessionKeys != null && !sessionKeys.isEmpty()) {
+            redisTemplate.delete(sessionKeys);
+        }
+
+        log.info("Очищення кешу присутності завершено.");
+    }
 }

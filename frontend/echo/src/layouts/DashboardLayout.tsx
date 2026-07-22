@@ -11,7 +11,7 @@ import styles from './DashboardLayout.module.css';
 export const DashboardLayout = () => {
     const { user, accessToken, logout } = useAuthStore();
     const navigate = useNavigate();
-    const { setClient, setIsConnected, addGlobalMessage, disconnect, setOnlineUsers, updateUserPresence, hasUnread, setHasUnread } = useWebSocketStore();
+    const { setClient, setIsConnected, setLatestMessage, disconnect, setOnlineUsers, updateUserPresence, hasUnread, setHasUnread } = useWebSocketStore();
     const presenceSubRef = useRef<StompSubscription | null>(null);
     const globalSubRef = useRef<StompSubscription | null>(null);
 
@@ -46,7 +46,7 @@ export const DashboardLayout = () => {
                 const userTopic = '/user/queue/messages';
                 globalSubRef.current = stompClient.subscribe(userTopic, (message) => {
                     const newMsg = JSON.parse(message.body);
-                    addGlobalMessage(newMsg);
+                    setLatestMessage(newMsg);
 
                     const currentActiveChatId = useWebSocketStore.getState().activeChatId;
                     if (newMsg.senderId !== user?.id && newMsg.chatId !== currentActiveChatId) {
