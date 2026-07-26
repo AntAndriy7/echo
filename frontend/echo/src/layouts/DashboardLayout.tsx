@@ -23,8 +23,6 @@ export const DashboardLayout = () => {
         navigate('/login');
     };
 
-    const fallbackAvatar = user?.username ? user.username.charAt(0).toUpperCase() : '?';
-
     useEffect(() => {
         if (!accessToken) return;
 
@@ -86,32 +84,13 @@ export const DashboardLayout = () => {
     return (
         <div className={styles.layout}>
             <aside className={styles.sidebar}>
-                <div className={styles.logo}>
-                    echo<span className={styles.logoAccent}>.</span>
-                </div>
-
                 <SidebarNav
                     hasUnread={hasUnread}
                     onLogoutClick={() => setIsLogoutModalOpen(true)}
                     showLogout={true}
+                    user={user}
+                    onProfileClick={() => navigate(`/profile/${user?.username}`)}
                 />
-
-                <div
-                    className={styles.profileSection}
-                    onClick={() => navigate(`/profile/${user?.username}`)}
-                >
-                    <div className={styles.avatar}>
-                        {user?.avatarUrl ? (
-                            <img src={user.avatarUrl} alt="Avatar" className={styles.avatarImg} />
-                        ) : (
-                            fallbackAvatar
-                        )}
-                    </div>
-                    <div className={styles.userInfo}>
-                        <span className={styles.userName}>{user?.username || 'Користувач'}</span>
-                        <span className={styles.userEmail}>{user?.email || 'Невідомий email'}</span>
-                    </div>
-                </div>
             </aside>
 
             <main className={styles.mainContent}>

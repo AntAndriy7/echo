@@ -32,6 +32,9 @@
   --feed-max-width: 680px;
   --shadow-dropdown: 0 16px 40px rgba(0, 0, 0, 0.6);
 
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 80px;
+
   --states-hover: rgb(36 37 39);
   --states-active-bg: rgb(24 24 24);
 
@@ -47,6 +50,11 @@
 
   --btn-disabled-bg: #252525;
   --btn-disabled-text: #78756c;
+}
+
+html {
+  height: 100%;
+  overflow-y: scroll;
 }
 
 body {
