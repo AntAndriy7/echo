@@ -23,19 +23,15 @@ interface SidebarNavProps {
 interface SidebarButtonProps {
     to?: string;
     onClick?: () => void;
-    variant?: 'default' | 'danger';
     children: React.ReactNode | ((props: { isActive: boolean }) => React.ReactNode);
 }
 
-const SidebarButton = ({ to, onClick, variant = 'default', children }: SidebarButtonProps) => {
-    const isDanger = variant === 'danger';
-    const baseClass = `${styles.sidebarBtn} ${isDanger ? styles.sidebarBtnDanger : styles.sidebarBtnDefault}`;
-
+const SidebarButton = ({ to, onClick, children }: SidebarButtonProps) => {
     if (to) {
         return (
             <NavLink
                 to={to}
-                className={({ isActive }) => `${baseClass} ${isActive ? styles.activeBtn : ''}`}
+                className={({ isActive }) => `${styles.sidebarBtn} ${isActive ? styles.activeBtn : ''}`}
             >
                 {typeof children === 'function' ? (renderProps) => children(renderProps) : children}
             </NavLink>
@@ -43,7 +39,7 @@ const SidebarButton = ({ to, onClick, variant = 'default', children }: SidebarBu
     }
 
     return (
-        <button onClick={onClick} className={baseClass}>
+        <button onClick={onClick} className={styles.sidebarBtn}>
             {typeof children === 'function' ? children({ isActive: false }) : children}
         </button>
     );
@@ -83,7 +79,7 @@ export const SidebarNav = ({ hasUnread, onLogoutClick, showLogout = true, user, 
                 </SidebarButton>
 
                 {showLogout && onLogoutClick && (
-                    <SidebarButton variant="danger" onClick={onLogoutClick}>
+                    <SidebarButton onClick={onLogoutClick}>
                         <div className={styles.iconWrapper}>
                             <LogoutIcon width="20" height="20" />
                         </div>

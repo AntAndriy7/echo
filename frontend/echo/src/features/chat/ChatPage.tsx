@@ -6,7 +6,7 @@ import { useWebSocketStore } from '../../store/useWebSocketStore';
 import type { ChatResponse } from '../../types';
 import { chatApi } from '../../api/chatApi';
 import { Button } from '../../components/Button/Button.tsx';
-import { DoubleCheckIcon } from '../../components/Icons';
+import { CheckIcon, DoubleCheckIcon } from '../../components/Icons';
 import styles from './Chat.module.css';
 
 export const ChatPage = () => {
@@ -284,7 +284,6 @@ export const ChatPage = () => {
                                             <div className={`${styles.messageBox} ${isMyMessage ? styles.messageMy : styles.messageTheir}`}>
                                                 <span className={styles.messageText}>
                                                     {msg.content}
-                                                    <span className={styles.metaSpacer}></span>
                                                 </span>
 
                                                 <div className={styles.messageMeta}>
@@ -293,11 +292,11 @@ export const ChatPage = () => {
                                                     </span>
 
                                                     {isMyMessage && (
-                                                        <DoubleCheckIcon
-                                                            width="16"
-                                                            height="16"
-                                                            color={msg.isRead ? 'var(--accent-yellow)' : 'var(--text-muted)'}
-                                                        />
+                                                        msg.isRead ? (
+                                                            <DoubleCheckIcon width="16" height="16" />
+                                                        ) : (
+                                                            <CheckIcon width="16" height="16" />
+                                                        )
                                                     )}
                                                 </div>
                                             </div>

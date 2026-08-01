@@ -1,8 +1,11 @@
 :root {
   --bg-main: #030200;
   --bg-surface: #0A0A0A; /* #0A0A0A #0e0e0e #101010 */
+  --bg-surface-light: #1a1a1a;
+
   --accent-yellow: #FFD43B;
-  --accent-yellow-hover: #F5C327;
+  --accent-purple: #742FDF;
+  --accent-purple-light: #c8baf4;
 
   --blur-main: blur(4px);
 
@@ -37,19 +40,6 @@
 
   --states-hover: rgb(36 37 39);
   --states-active-bg: rgb(24 24 24);
-
-  --btn-primary-text: #030200;
-  --btn-primary-bg: #F5F6F7;
-  --btn-primary-hover-bg: #D4D8DC;
-
-  --btn-secondary-text: rgba(255, 255, 255, 0.9);
-  --btn-secondary-border: rgba(255, 255, 255, 0.6);
-  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.05);
-
-  --btn-dropdown-hover-bg: rgba(255, 255, 255, 0.1);
-
-  --btn-disabled-bg: #252525;
-  --btn-disabled-text: #78756c;
 }
 
 html {

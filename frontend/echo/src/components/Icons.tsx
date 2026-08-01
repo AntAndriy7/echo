@@ -79,8 +79,15 @@ export const MoreIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
-export const DoubleCheckIcon = ({ width = "16", height = "16", color = "currentColor", className = "" }) => (
-    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-        <path d="M11.602 13.7599L13.014 15.1719L21.4795 6.7063L22.8938 8.12051L13.014 18.0003L8.6795 13.6656L10.0938 12.2514L11.602 13.7599ZM7.44705 15.3582L6.03284 13.944L10.0938 9.88307L11.508 11.2973L7.44705 15.3582ZM2.25055 13.944L6.58505 18.0003L7.99926 16.5861L3.66476 12.5298L2.25055 13.944Z" fill={color}/>
+export const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M17 6L6 17l-5-5" />
+    </svg>
+);
+
+export const DoubleCheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M17 6L6 17l-5-5" />
+        <path d="M22 10l-7.5 7L13 16"></path>
     </svg>
 );

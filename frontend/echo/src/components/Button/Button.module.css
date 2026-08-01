@@ -1,4 +1,17 @@
 .button {
+    --btn-primary-text: var(--bg-main);
+    --btn-primary-bg: rgba(255, 255, 255, 0.9);
+    --btn-primary-hover-bg: rgba(255, 255, 255, 0.8);
+
+    --btn-secondary-text: rgba(255, 255, 255, 0.9);
+    --btn-secondary-border: rgba(255, 255, 255, 0.6);
+    --btn-secondary-hover-bg: rgba(255, 255, 255, 0.075);
+
+    --btn-dropdown-hover-bg: rgba(255, 255, 255, 0.1);
+
+    --btn-disabled-bg: #252525;
+    --btn-disabled-text: #78756c;
+
     border: 1px solid transparent;
     font-family: inherit;
     font-weight: var(--font-weight-semibold);

@@ -68,21 +68,12 @@
     transition: opacity var(--transition-speed) ease;
 }
 
-.sidebarBtnDefault:hover {
+.sidebarBtn:hover {
     background-color: var(--states-hover);
 }
 
 .activeBtn {
     font-weight: var(--font-weight-bold);
-}
-
-.sidebarBtnDanger {
-    margin-top: 8px;
-}
-
-.sidebarBtnDanger:hover {
-    background-color: var(--error-alpha-10);
-    color: var(--error);
 }
 
 .unreadBadge {
