@@ -19,6 +19,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -112,7 +113,7 @@ public class ChatService {
         List<Chat> chats = chatRepository.findAllByUserId(currentUserId);
 
         return chats.stream()
-                .map(chat -> chatMapper.toResponse(chat, currentUserId))
+                .map(chat -> buildChatResponse(chat, currentUserId))
                 .sorted(Comparator.comparing(
                         ChatResponse::lastMessageAt,
                         Comparator.nullsLast(Comparator.reverseOrder())
@@ -149,7 +150,7 @@ public class ChatService {
         List<Chat> existingChats = chatRepository.findChatBetweenUsers(currentUserId, targetUser.getId());
 
         if (!existingChats.isEmpty()) {
-            return chatMapper.toResponse(existingChats.get(0), currentUserId);
+            return buildChatResponse(existingChats.get(0), currentUserId);
         }
 
         User currentUser = userRepository.findById(currentUserId)
@@ -161,6 +162,21 @@ public class ChatService {
 
         Chat savedChat = chatRepository.save(newChat);
 
-        return chatMapper.toResponse(savedChat, currentUserId);
+        return buildChatResponse(savedChat, currentUserId);
+    }
+
+    private ChatResponse buildChatResponse(Chat chat, UUID currentUserId) {
+        User interlocutor = chat.getParticipants().stream()
+                .filter(user -> !user.getId().equals(currentUserId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("У чаті відсутній співрозмовник"));
+
+        Message lastMsg = messageRepository.findFirstByChatIdOrderByCreatedAtDesc(chat.getId()).orElse(null);
+        String lastMessageText = lastMsg != null ? lastMsg.getContent() : "Немає повідомлень";
+        LocalDateTime lastMessageAt = lastMsg != null ? lastMsg.getCreatedAt() : null;
+
+        int unreadCount = messageRepository.countUnreadMessages(chat.getId(), currentUserId);
+
+        return chatMapper.toResponse(chat, interlocutor, lastMessageText, unreadCount, lastMessageAt);
     }
 }
