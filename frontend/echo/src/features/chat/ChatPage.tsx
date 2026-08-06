@@ -20,7 +20,7 @@ export const ChatPage = () => {
     const [typedMessage, setTypedMessage] = useState('');
 
     const { onlineUsers, latestMessage, setActiveChatId } = useWebSocketStore();
-    const { messages, sendMessage } = useChatWebSocket(selectedChat?.id);
+    const { messages, sendMessage, isSending, typingUser, notifyTyping } = useChatWebSocket(selectedChat?.id);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -261,9 +261,21 @@ export const ChatPage = () => {
                             </div>
                             <div className={styles.headerMeta}>
                                 <span className={styles.chatName}>{selectedChat.username}</span>
-                                <span className={`${styles.statusOnline} ${isPartnerOnline ? styles.online : ''}`}>
-                                    {isPartnerOnline ? 'В мережі' : 'Десь між думками'}
-                                </span>
+
+                                {typingUser ? (
+                                    <span className={styles.typingIndicator}>
+                                        Друкує
+                                        <span className={styles.typingDots}>
+                                            <span>.</span>
+                                            <span>.</span>
+                                            <span>.</span>
+                                        </span>
+                                    </span>
+                                ) : (
+                                    <span className={`${styles.statusOnline} ${isPartnerOnline ? styles.online : ''}`}>
+                                        {isPartnerOnline ? 'В мережі' : 'Десь між думками'}
+                                    </span>
+                                )}
                             </div>
                         </div>
 
@@ -313,7 +325,11 @@ export const ChatPage = () => {
                                 placeholder="Напишіть повідомлення..."
                                 className={styles.inputField}
                                 value={typedMessage}
-                                onChange={(e) => setTypedMessage(e.target.value)}
+                                onChange={(e) => {
+                                    setTypedMessage(e.target.value);
+                                    notifyTyping();
+                                }}
+                                disabled={isSending}
                             />
                             <Button
                                 type="submit"

@@ -2,6 +2,7 @@ package com.echo.controller;
 
 import com.echo.config.WebSocketEventListener;
 import com.echo.dto.chat.ChatResponse;
+import com.echo.dto.chat.MessageRequest;
 import com.echo.dto.chat.MessageResponse;
 import com.echo.security.service.CustomUserDetails;
 import com.echo.service.ChatService;
@@ -56,6 +57,16 @@ public class ChatController {
     ) {
         ChatResponse chat = chatService.getOrCreateChat(currentUser.getId(), targetUsername);
         return ResponseEntity.ok(chat);
+    }
+
+    @PostMapping("/{chatId}/messages")
+    public ResponseEntity<MessageResponse> sendMessage(
+            @PathVariable UUID chatId,
+            @RequestBody MessageRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        MessageResponse savedMessage = chatService.saveAndBroadcastMessage(chatId, request, currentUser.getId());
+        return ResponseEntity.ok(savedMessage);
     }
 
     @PutMapping("/{chatId}/read")

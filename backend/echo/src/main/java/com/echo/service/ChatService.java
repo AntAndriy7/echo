@@ -58,15 +58,12 @@ public class ChatService {
     }
 
     @Transactional
-    public void saveAndBroadcastMessage(UUID chatId, MessageRequest request, UUID senderId) {
-        // Зберігаємо повідомлення в БД
+    public MessageResponse saveAndBroadcastMessage(UUID chatId, MessageRequest request, UUID senderId) {
         MessageResponse savedMessage = saveMessage(chatId, request, senderId);
 
-        // Дістаємо чат (Hibernate візьме його з кешу L1, зайвого SELECT не буде)
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new IllegalArgumentException("Чат не знайдено"));
 
-        // Розсилка кожному учаснику через його приватну чергу
         for (User participant : chat.getParticipants()) {
             messagingTemplate.convertAndSendToUser(
                     participant.getUsername(),
@@ -74,6 +71,8 @@ public class ChatService {
                     savedMessage
             );
         }
+
+        return savedMessage;
     }
 
     @Transactional

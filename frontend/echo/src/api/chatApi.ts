@@ -29,5 +29,10 @@ export const chatApi = {
     getOnlineUsers: async () => {
         const response = await api.get<string[]>('/chats/presence');
         return response.data;
+    },
+
+    sendMessage: async (chatId: string, content: string) => {
+        const response = await api.post<MessageResponse>(`/chats/${chatId}/messages`, { content });
+        return response.data;
     }
 };
