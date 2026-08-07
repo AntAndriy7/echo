@@ -52,3 +52,10 @@ export interface MessageResponse {
     createdAt: string;
     isRead: boolean;
 }
+
+export interface PageResponse<T> {
+    content: T[];
+    last: boolean;
+    totalPages: number;
+    totalElements: number;
+}

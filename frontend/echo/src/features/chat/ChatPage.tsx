@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useChatWebSocket } from '../../hooks/useChatWebSocket';
@@ -20,11 +20,14 @@ export const ChatPage = () => {
     const [typedMessage, setTypedMessage] = useState('');
 
     const { onlineUsers, latestMessage, setActiveChatId } = useWebSocketStore();
-    const { messages, sendMessage, isSending, typingUser, notifyTyping } = useChatWebSocket(selectedChat?.id);
+    const { messages, sendMessage, isSending, typingUser, notifyTyping, loadMore, hasMore, isLoadingMore } = useChatWebSocket(selectedChat?.id);
 
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
+    const [prevScrollHeight, setPrevScrollHeight] = useState<number | null>(null);
 
     const isPartnerOnline = selectedChat ? onlineUsers.includes(selectedChat.username) : false;
+
+    const selectedChatRef = useRef<string | undefined>(undefined);
 
     const filteredChats = useMemo(() => {
         return chats.filter(chat =>
@@ -32,11 +35,27 @@ export const ChatPage = () => {
         );
     }, [chats, searchQuery]);
 
-    useEffect(() => {
-        if (selectedChat) {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const target = e.currentTarget;
+
+        if (target.scrollTop <= 300 && hasMore && !isLoadingMore) {
+            const distanceFromBottom = target.scrollHeight - target.scrollTop;
+            setPrevScrollHeight(distanceFromBottom);
+            loadMore();
         }
-    }, [messages, selectedChat?.id]);
+    };
+
+    useLayoutEffect(() => {
+        if (!messagesContainerRef.current) return;
+
+        if (prevScrollHeight !== null) {
+            const newScrollHeight = messagesContainerRef.current.scrollHeight;
+            messagesContainerRef.current.scrollTop = newScrollHeight - prevScrollHeight;
+            setPrevScrollHeight(null);
+        } else if (messages.length > 0) {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     useEffect(() => {
         const fetchChats = async () => {
@@ -82,7 +101,7 @@ export const ChatPage = () => {
         setChats(prevChats => {
             const chatIndex = prevChats.findIndex(c => c.id === latestMessage.chatId);
             if (chatIndex !== -1) {
-                const isNotCurrentlyOpen = selectedChat?.id !== latestMessage.chatId;
+                const isNotCurrentlyOpen = selectedChatRef.current !== latestMessage.chatId;
                 const isNotFromMe = latestMessage.senderId !== currentUser?.id;
 
                 const updatedChat = {
@@ -104,7 +123,7 @@ export const ChatPage = () => {
             }
             return prevChats;
         });
-    }, [latestMessage, selectedChat, currentUser?.id]);
+    }, [latestMessage, currentUser?.id]);
 
     useEffect(() => {
         if (!selectedChat) return;
@@ -123,6 +142,10 @@ export const ChatPage = () => {
                 return updated;
             });
         }
+    }, [selectedChat]);
+
+    useEffect(() => {
+        selectedChatRef.current = selectedChat?.id;
     }, [selectedChat]);
 
     useEffect(() => {
@@ -279,7 +302,11 @@ export const ChatPage = () => {
                             </div>
                         </div>
 
-                        <div className={styles.messagesContainer}>
+                        <div
+                            className={styles.messagesContainer}
+                            ref={messagesContainerRef}
+                            onScroll={handleScroll}
+                        >
                             {messages.map((msg, index) => {
                                 const showDateDivider = index === 0 || !isSameDay(msg.createdAt, messages[index - 1].createdAt);
                                 const isMyMessage = msg.senderId === currentUser?.id;
@@ -316,7 +343,6 @@ export const ChatPage = () => {
                                     </React.Fragment>
                                 );
                             })}
-                            <div ref={messagesEndRef} />
                         </div>
 
                         <form className={styles.inputContainer} onSubmit={handleSend}>

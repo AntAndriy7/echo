@@ -10,6 +10,10 @@ export const useChatWebSocket = (chatId: string | undefined) => {
     const [messages, setMessages] = useState<MessageResponse[]>([]);
     const [isSending, setIsSending] = useState(false);
 
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
     const [typingUser, setTypingUser] = useState<string | null>(null);
     const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const typingBurstStartRef = useRef<number | null>(null);
@@ -20,10 +24,17 @@ export const useChatWebSocket = (chatId: string | undefined) => {
         if (!chatId) return;
         let isMounted = true;
 
+        setPage(0);
+        setHasMore(true);
+        setMessages([]);
+
         const fetchHistory = async () => {
             try {
-                const history = await chatApi.getMessages(chatId);
-                if (isMounted) setMessages(history);
+                const data = await chatApi.getMessages(chatId, 0);
+                if (isMounted) {
+                    setMessages(data.content);
+                    setHasMore(!data.last);
+                }
             } catch (error) {
                 console.error('Помилка завантаження історії:', error);
             }
@@ -140,5 +151,23 @@ export const useChatWebSocket = (chatId: string | undefined) => {
         }
     };
 
-    return { messages, sendMessage, isSending, typingUser, notifyTyping };
+    const loadMore = async () => {
+        if (!chatId || isLoadingMore || !hasMore || messages.length === 0) return;
+
+        setIsLoadingMore(true);
+        try {
+            const nextPage = page + 1;
+            const data = await chatApi.getMessages(chatId, nextPage);
+
+            setMessages(prev => [...data.content, ...prev]);
+            setPage(nextPage);
+            setHasMore(!data.last);
+        } catch (error) {
+            console.error('Помилка підвантаження старих повідомлень:', error);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    };
+
+    return { messages, sendMessage, isSending, typingUser, notifyTyping, loadMore, hasMore, isLoadingMore };
 };

@@ -1,5 +1,5 @@
 import { api } from './axios';
-import type {ChatResponse, MessageResponse} from '../types';
+import type {ChatResponse, MessageResponse, PageResponse} from '../types';
 
 export const chatApi = {
     getChats: async () => {
@@ -7,9 +7,15 @@ export const chatApi = {
         return response.data;
     },
 
-    getMessages: async (chatId: string) => {
-        const response = await api.get<{ content: MessageResponse[] }>(`/chats/${chatId}/messages`);
-        return response.data.content.reverse();
+    getMessages: async (chatId: string, page: number = 0, size: number = 40) => {
+        const response = await api.get<PageResponse<MessageResponse>>(
+            `/chats/${chatId}/messages?page=${page}&size=${size}`
+        );
+
+        const data = response.data;
+        data.content.reverse();
+
+        return data;
     },
 
     getOrCreate: async (targetUsername: string) => {
