@@ -1,0 +1,19 @@
+.skeleton {
+    background-color: var(--border-subtle);
+    animation: pulse 1.5s infinite ease-in-out;
+    display: block;
+}
+
+.rectangular {
+    border-radius: var(--border-radius);
+}
+
+.circular {
+    border-radius: 50%;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0.6; }
+}

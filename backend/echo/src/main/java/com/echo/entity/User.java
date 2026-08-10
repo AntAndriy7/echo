@@ -53,6 +53,14 @@ public class User {
     @Column(name = "last_seen")
     private LocalDateTime lastSeen;
 
+    @Column(name = "followers_count", nullable = false)
+    @Builder.Default
+    private Integer followersCount = 0;
+
+    @Column(name = "following_count", nullable = false)
+    @Builder.Default
+    private Integer followingCount = 0;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

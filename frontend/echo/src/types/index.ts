@@ -11,6 +11,8 @@ export interface User {
     status: UserStatus;
     lastSeen: string | null;
     role: UserRole;
+    followersCount: number;
+    followingCount: number;
 }
 
 export interface AuthResponse {
@@ -58,4 +60,12 @@ export interface PageResponse<T> {
     last: boolean;
     totalPages: number;
     totalElements: number;
+}
+
+export interface FollowUserResponse {
+    id: string;
+    username: string;
+    avatarUrl: string | null;
+    email: string;
+    isFollowing: boolean;
 }

@@ -14,5 +14,7 @@ public record UserResponse(
         Integer activeDaysCount,
         UserStatus status,
         UserRole role,
-        LocalDateTime lastSeen
+        LocalDateTime lastSeen,
+        Integer followersCount,
+        Integer followingCount
 ) {}

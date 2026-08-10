@@ -4,11 +4,14 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { userApi } from '../../api/userApi';
 import { postApi } from '../../api/postApi';
 import { chatApi } from '../../api/chatApi';
+import { followApi } from '../../api/followApi';
 import type { User, PostResponse } from '../../types';
 import { Button } from '../../components/Button/Button';
 import { Tabs } from '../../components/Tabs/Tabs';
 import { PostCard } from '../feed/PostCard';
 import { formatDate } from '../../utils/formatDate';
+import { EditIcon } from '../../components/Icons';
+import { FollowModal } from '../../components/FollowModal/FollowModal';
 import styles from './Profile.module.css';
 
 type ProfileTab = 'posts' | 'likes' | 'media';
@@ -27,12 +30,25 @@ export const ProfilePage = () => {
     const [profileUser, setProfileUser] = useState<User | null>(null);
     const [posts, setPosts] = useState<PostResponse[]>([]);
 
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [isFollowLoading, setIsFollowLoading] = useState(false);
+
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
 
     const [isCreatingChat, setIsCreatingChat] = useState(false);
 
     const isMyProfile = currentUser?.username === username;
+
+    const [modalConfig, setModalConfig] = useState<{
+        isOpen: boolean;
+        type: 'followers' | 'following';
+        title: string;
+    }>({
+        isOpen: false,
+        type: 'followers',
+        title: ''
+    });
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -46,6 +62,11 @@ export const ProfilePage = () => {
 
                 setProfileUser(userData);
                 setPosts(userPosts);
+
+                if (currentUser && currentUser.username !== username) {
+                    const status = await followApi.getFollowStatus(userData.id);
+                    setIsFollowing(status);
+                }
             } catch (error) {
                 console.error('Не вдалося завантажити профіль:', error);
             } finally {
@@ -54,7 +75,7 @@ export const ProfilePage = () => {
         };
 
         fetchProfileData();
-    }, [username]);
+    }, [username, currentUser]);
 
     const handlePostDeleted = (deletedPostId: string) => {
         setPosts(prev => prev.filter(post => post.id !== deletedPostId));
@@ -91,39 +112,98 @@ export const ProfilePage = () => {
         }
     };
 
+    const handleFollowToggle = async () => {
+        if (!profileUser) return;
+
+        setIsFollowLoading(true);
+        try {
+            await followApi.toggleFollow(profileUser.id);
+
+            setIsFollowing(prev => !prev);
+            setProfileUser(prev => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    followersCount: isFollowing
+                        ? Math.max(0, prev.followersCount - 1)
+                        : prev.followersCount + 1
+                };
+            });
+        } catch (error) {
+            console.error('Помилка при зміні статусу підписки:', error);
+        } finally {
+            setIsFollowLoading(false);
+        }
+    };
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <div className={styles.avatarLarge}>
-                    {profileUser.avatarUrl ? (
-                        <img src={profileUser.avatarUrl} alt={profileUser.username} className={styles.avatarImg} />
-                    ) : (
-                        fallbackAvatar
+                <div className={styles.profileMain}>
+                    <div className={styles.avatarLarge}>
+                        {profileUser.avatarUrl ? (
+                            <img src={profileUser.avatarUrl} alt={profileUser.username} className={styles.avatarImg} />
+                        ) : (
+                            fallbackAvatar
+                        )}
+                    </div>
+
+                    <div className={styles.userInfo}>
+                        <h1 className={styles.username}>{profileUser.username}</h1>
+                        <p className={styles.email}>{profileUser.email}</p>
+
+                        <div className={styles.stats}>
+                            <span className={styles.statItem}>
+                                <span className={styles.statNumber}>{posts.length}</span> дописів
+                            </span>
+                            <button
+                                className={styles.statBtn}
+                                onClick={() => setModalConfig({ isOpen: true, type: 'followers', title: 'Читачі' })}
+                            >
+                                <span className={styles.statNumber}>{profileUser.followersCount || 0}</span> читачів
+                            </button>
+
+                            <button
+                                className={styles.statBtn}
+                                onClick={() => setModalConfig({ isOpen: true, type: 'following', title: 'Відстежуються' })}
+                            >
+                                <span className={styles.statNumber}>{profileUser.followingCount || 0}</span> стежить
+                            </button>
+                        </div>
+                        <FollowModal
+                            isOpen={modalConfig.isOpen}
+                            onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+                            userId={profileUser.id}
+                            type={modalConfig.type}
+                            title={modalConfig.title}
+                        />
+                    </div>
+
+                    {isMyProfile && (
+                        <button
+                            className={styles.editIconBtn}
+                            onClick={() => alert('Модалка редагування профілю буде тут')}
+                            title="Редагувати профіль"
+                        >
+                            <EditIcon />
+                        </button>
                     )}
                 </div>
-                <h1 className={styles.username}>{profileUser.username}</h1>
-                <p className={styles.email}>{profileUser.email}</p>
 
-                <div className={styles.profileActions}>
-                    {isMyProfile ? (
-                        <Button
-                            variant="primary"
-                            size="sm"
-                            rounded
-                            onClick={() => alert('Модалка редагування профілю буде тут')}
-                        >
-                            Редагувати профіль
-                        </Button>
-                    ) : (
-                        <>
+                {!isMyProfile && (
+                    <div className={styles.profileActions}>
+                        <div className={styles.actionBtnWrapper}>
                             <Button
-                                variant="primary"
+                                variant={isFollowing ? "secondary" : "primary"}
                                 size="sm"
                                 rounded
-                                onClick={() => alert('Заглушка: Підписатись')}
+                                onClick={handleFollowToggle}
+                                isLoading={isFollowLoading}
                             >
-                                Стежити
+                                {isFollowing ? 'Відписатися' : 'Стежити'}
                             </Button>
+                        </div>
+                        <div className={styles.actionBtnWrapper}>
                             <Button
                                 variant="primary"
                                 size="sm"
@@ -133,9 +213,9 @@ export const ProfilePage = () => {
                             >
                                 Повідомлення
                             </Button>
-                        </>
-                    )}
-                </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <Tabs
@@ -152,11 +232,7 @@ export const ProfilePage = () => {
                         <PostCard
                             key={post.id}
                             id={post.id}
-                            author={{
-                                id: post.author.id,
-                                username: post.author.username,
-                                avatarUrl: post.author.avatarUrl
-                            }}
+                            author={post.author}
                             content={post.content}
                             createdAt={formatDate(post.createdAt)}
                             initialLikes={post.likesCount || 0}
