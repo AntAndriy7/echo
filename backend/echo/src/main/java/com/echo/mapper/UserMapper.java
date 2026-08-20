@@ -11,8 +11,5 @@ public interface UserMapper {
     UserResponse toResponse(User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "password", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
     void updateEntityFromDto(UpdateProfileRequest dto, @MappingTarget User user);
 }

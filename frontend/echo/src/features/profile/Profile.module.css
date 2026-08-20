@@ -10,7 +10,7 @@
 .header {
     display: flex;
     flex-direction: column;
-    padding: 40px 0;
+    padding: 40px 0 10px;
     width: 100%;
 }
 
@@ -20,8 +20,8 @@
 }
 
 .avatarLarge {
-    width: 100px;
-    height: 100px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     background-color: var(--bg-surface);
     border: 1px solid var(--border-subtle);
@@ -45,8 +45,8 @@
 .userInfo {
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
-    height: 100px;
+    justify-content: center;
+    gap: 8px;
     flex-grow: 1;
 }
 
@@ -94,6 +94,20 @@
 .statNumber {
     font-weight: var(--font-weight-bold);
     color: var(--text-main);
+}
+
+.bioContainer {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.bio {
+    font-size: 15px;
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .editIconBtn {

@@ -33,22 +33,12 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Користувача не знайдено"));
 
-        if (request.email() != null && !request.email().equals(user.getEmail())
-                && userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email вже використовується");
-        }
-        if (request.username() != null && !request.username().equals(user.getUsername())
-                && userRepository.existsByUsername(request.username())) {
-            throw new IllegalArgumentException("Username вже зайнятий");
+        if (request.username() != null && !request.username().equals(user.getUsername())) {
+            if (userRepository.existsByUsername(request.username()))
+                throw new IllegalArgumentException("Username вже зайнятий");
         }
 
         userMapper.updateEntityFromDto(request, user);
-
-        if (request.password() != null && !request.password().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.password()));
-        }
-
-        User updatedUser = userRepository.save(user);
-        return userMapper.toResponse(updatedUser);
+        return userMapper.toResponse(user);
     }
 }

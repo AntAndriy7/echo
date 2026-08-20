@@ -15,6 +15,12 @@ export interface User {
     followingCount: number;
 }
 
+export interface UpdateProfileRequest {
+    username?: string;
+    avatarUrl?: string;
+    bio?: string;
+}
+
 export interface AuthResponse {
     accessToken: string;
     refreshToken: string;

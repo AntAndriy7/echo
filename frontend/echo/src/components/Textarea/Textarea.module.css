@@ -1,0 +1,106 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 28px;
+    position: relative;
+}
+
+.inputContainer {
+    position: relative;
+    width: 100%;
+    display: flex;
+}
+
+.textarea {
+    scrollbar-color: var(--border-focus) transparent;
+    overflow-y: scroll;
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--border-radius, 4px);
+    color: var(--text-main);
+    font-size: 16px;
+    padding: 16px;
+    outline: none;
+    font-family: inherit;
+    resize: none;
+    min-height: 120px;
+
+    transition:
+            border-color var(--transition-speed, 0.2s) ease,
+            box-shadow var(--transition-speed, 0.2s) ease;
+}
+
+.label {
+    position: absolute;
+    left: 12px;
+    top: 16px;
+    color: var(--text-muted);
+    font-size: 16px;
+    padding: 0 4px;
+    background-color: var(--bg-surface);
+    pointer-events: none;
+    transition: all var(--transition-speed, 0.2s) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.textarea:focus ~ .label,
+.textarea:not(:placeholder-shown) ~ .label {
+    top: -8px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.textarea:focus {
+    border-color: var(--accent-yellow);
+    box-shadow: inset 0 0 0 1px var(--accent-yellow);
+}
+
+.textarea:focus ~ .label {
+    color: var(--accent-yellow);
+}
+
+.wrapper.hasError .textarea {
+    border-color: var(--error);
+}
+
+.wrapper.hasError .textarea:focus {
+    border-color: var(--error);
+    box-shadow: inset 0 0 0 1px var(--error);
+}
+
+.wrapper.hasError .label,
+.wrapper.hasError .textarea:focus ~ .label {
+    color: var(--error);
+}
+
+.footer {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 4px;
+}
+
+.errorContainer {
+    flex: 1;
+}
+
+.errorText {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--error);
+    font-size: 12px;
+    font-weight: var(--font-weight-regular);
+    white-space: nowrap;
+}
+
+.charCount {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: auto;
+}

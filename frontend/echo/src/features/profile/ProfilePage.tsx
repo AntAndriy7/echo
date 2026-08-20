@@ -12,6 +12,7 @@ import { PostCard } from '../feed/PostCard';
 import { formatDate } from '../../utils/formatDate';
 import { EditIcon } from '../../components/Icons';
 import { FollowModal } from '../../components/FollowModal/FollowModal';
+import { EditProfileModal } from '../../components/EditProfileModal/EditProfileModal';
 import styles from './Profile.module.css';
 
 type ProfileTab = 'posts' | 'likes' | 'media';
@@ -32,6 +33,8 @@ export const ProfilePage = () => {
 
     const [isFollowing, setIsFollowing] = useState(false);
     const [isFollowLoading, setIsFollowLoading] = useState(false);
+
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
@@ -177,18 +180,32 @@ export const ProfilePage = () => {
                             type={modalConfig.type}
                             title={modalConfig.title}
                         />
+                        {profileUser && isMyProfile && (
+                            <EditProfileModal
+                                isOpen={isEditModalOpen}
+                                onClose={() => setIsEditModalOpen(false)}
+                                user={profileUser}
+                                onUpdate={(updatedUser) => setProfileUser(updatedUser)}
+                            />
+                        )}
                     </div>
 
                     {isMyProfile && (
                         <button
                             className={styles.editIconBtn}
-                            onClick={() => alert('Модалка редагування профілю буде тут')}
+                            onClick={() => setIsEditModalOpen(true)}
                             title="Редагувати профіль"
                         >
                             <EditIcon />
                         </button>
                     )}
                 </div>
+
+                {profileUser.bio && (
+                    <div className={styles.bioContainer}>
+                        <p className={styles.bio}>{profileUser.bio}</p>
+                    </div>
+                )}
 
                 {!isMyProfile && (
                     <div className={styles.profileActions}>
