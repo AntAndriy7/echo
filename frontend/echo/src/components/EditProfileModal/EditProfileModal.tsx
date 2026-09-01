@@ -124,7 +124,21 @@ export const EditProfileModal = ({ isOpen, onClose, user, onUpdate }: EditProfil
             }
 
         } catch (err: any) {
-            setErrors({ general: err.response?.data?.message || 'Помилка при оновленні профілю' });
+            const backendData = err.response?.data;
+
+            if (backendData) {
+                if (backendData.username || backendData.bio || backendData.avatarUrl) {
+                    setErrors({
+                        username: backendData.username,
+                        bio: backendData.bio,
+                        general: backendData.message
+                    });
+                } else {
+                    setErrors({ general: backendData.message || 'Помилка при оновленні профілю' });
+                }
+            } else {
+                setErrors({ general: 'Втрачено з\'єднання з сервером' });
+            }
         } finally {
             setIsLoading(false);
         }

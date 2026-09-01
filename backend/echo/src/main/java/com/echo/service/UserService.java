@@ -3,6 +3,7 @@ package com.echo.service;
 import com.echo.dto.user.UserResponse;
 import com.echo.dto.user.UpdateProfileRequest;
 import com.echo.entity.User;
+import com.echo.exception.ResourceNotFoundException;
 import com.echo.mapper.UserMapper;
 import com.echo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getProfileByUsername(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Користувача '" + username + "' не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача '" + username + "' не знайдено"));
 
         return userMapper.toResponse(user);
     }
@@ -31,7 +32,7 @@ public class UserService {
     @Transactional
     public UserResponse updateProfile(UUID userId, UpdateProfileRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         if (request.username() != null && !request.username().equals(user.getUsername())) {
             if (userRepository.existsByUsername(request.username()))
