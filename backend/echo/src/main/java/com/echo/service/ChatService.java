@@ -6,6 +6,7 @@ import com.echo.dto.chat.MessageResponse;
 import com.echo.entity.Chat;
 import com.echo.entity.Message;
 import com.echo.entity.User;
+import com.echo.exception.ResourceNotFoundException;
 import com.echo.mapper.ChatMapper;
 import com.echo.mapper.MessageMapper;
 import com.echo.repository.ChatRepository;
@@ -36,10 +37,10 @@ public class ChatService {
     @Transactional
     public MessageResponse saveMessage(UUID chatId, MessageRequest request, UUID senderId) {
         Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new IllegalArgumentException("Чат не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Чат не знайдено"));
 
         User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> new IllegalArgumentException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         boolean isParticipant = chat.getParticipants().stream()
                 .anyMatch(u -> u.getId().equals(senderId));
@@ -62,7 +63,7 @@ public class ChatService {
         MessageResponse savedMessage = saveMessage(chatId, request, senderId);
 
         Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new IllegalArgumentException("Чат не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Чат не знайдено"));
 
         for (User participant : chat.getParticipants()) {
             messagingTemplate.convertAndSendToUser(
@@ -79,10 +80,9 @@ public class ChatService {
     public void markChatAsRead(UUID chatId, UUID currentUserId) {
         int updatedCount = messageRepository.markAllAsRead(chatId, currentUserId);
 
-        // Якщо були оновлені повідомлення — сповіщаємо співрозмовника
         if (updatedCount > 0) {
             Chat chat = chatRepository.findById(chatId)
-                    .orElseThrow(() -> new IllegalArgumentException("Чат не знайдено"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Чат не знайдено"));
 
             String partnerUsername = chat.getParticipants().stream()
                     .filter(u -> !u.getId().equals(currentUserId))
@@ -123,7 +123,7 @@ public class ChatService {
     @Transactional(readOnly = true)
     public Page<MessageResponse> getChatMessages(UUID chatId, Pageable pageable, UUID currentUserId) {
         Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new IllegalArgumentException("Чат не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Чат не знайдено"));
 
         boolean isParticipant = chat.getParticipants().stream()
                 .anyMatch(u -> u.getId().equals(currentUserId));
@@ -140,7 +140,7 @@ public class ChatService {
     @Transactional
     public ChatResponse getOrCreateChat(UUID currentUserId, String targetUsername) {
         User targetUser = userRepository.findByUsername(targetUsername)
-                .orElseThrow(() -> new IllegalArgumentException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         if (currentUserId.equals(targetUser.getId())) {
             throw new IllegalArgumentException("Ви не можете створити чат самі з собою");
@@ -153,7 +153,7 @@ public class ChatService {
         }
 
         User currentUser = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new IllegalArgumentException("Поточного користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Поточного користувача не знайдено"));
 
         Chat newChat = new Chat();
         newChat.getParticipants().add(currentUser);

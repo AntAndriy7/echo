@@ -6,6 +6,7 @@ import com.echo.dto.post.PostUpdateRequest;
 import com.echo.entity.Post;
 import com.echo.entity.PostLike;
 import com.echo.entity.User;
+import com.echo.exception.ResourceNotFoundException;
 import com.echo.mapper.PostMapper;
 import com.echo.repository.PostLikeRepository;
 import com.echo.repository.PostRepository;
@@ -32,7 +33,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<PostResponse> getPostsByUsername(String username, Pageable pageable, UUID currentUserId) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Користувача '" + username + "' не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача '" + username + "' не знайдено"));
 
         Page<Post> posts = postRepository.findByAuthorIdAndDeletedAtIsNull(user.getId(), pageable);
 
@@ -42,7 +43,7 @@ public class PostService {
     @Transactional
     public PostResponse createPost(PostCreateRequest request, UUID authorId) {
         User author = userRepository.findById(authorId)
-                .orElseThrow(() -> new RuntimeException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         Post post = Post.builder()
                 .content(request.content())
@@ -69,7 +70,8 @@ public class PostService {
             postLikeRepository.deleteByPostIdAndUserId(postId, currentUserId);
         } else {
             Post post = postRepository.findById(postId)
-                    .orElseThrow(() -> new RuntimeException("Пост не знайдено"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Пост не знайдено"));
+
             User user = userRepository.getReferenceById(currentUserId);
 
             PostLike like = PostLike.builder()
@@ -83,7 +85,7 @@ public class PostService {
     @Transactional
     public void deletePost(UUID postId, UUID currentUserId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Пост не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Пост не знайдено"));
 
         if (!post.getAuthor().getId().equals(currentUserId)) {
             throw new AccessDeniedException("Ви можете видаляти лише власні пости");
@@ -95,7 +97,7 @@ public class PostService {
     @Transactional
     public PostResponse updatePost(UUID postId, PostUpdateRequest request, UUID currentUserId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Пост не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Пост не знайдено"));
 
         if (!post.getAuthor().getId().equals(currentUserId)) {
             throw new AccessDeniedException("Ви можете редагувати лише власні пости");

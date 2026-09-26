@@ -13,6 +13,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -50,18 +52,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        try {
-            AuthResult authResult = authService.register(request);
-            ResponseCookie refreshCookie = generateRefreshCookie(authResult.refreshToken());
-            AuthResponse response = new AuthResponse(authResult.accessToken(), authResult.user());
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+        AuthResult authResult = authService.register(request);
+        ResponseCookie refreshCookie = generateRefreshCookie(authResult.refreshToken());
+        AuthResponse response = new AuthResponse(authResult.accessToken(), authResult.user());
 
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                    .body(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(response);
     }
 
     @PostMapping("/login")
@@ -78,7 +76,8 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@CookieValue(name = "refresh_token", required = false) String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token відсутній");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Refresh token відсутній"));
         }
 
         try {
@@ -90,10 +89,11 @@ public class AuthController {
                     .header(HttpHeaders.SET_COOKIE, newRefreshCookie.toString())
                     .body(response);
         } catch (Exception e) {
+            // Тут try-catch виправданий, бо треба очистити куку
             ResponseCookie cleanCookie = generateCleanRefreshCookie();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
-                    .body(e.getMessage());
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 

@@ -4,6 +4,9 @@ import com.echo.dto.auth.AuthResult;
 import com.echo.dto.auth.LoginRequest;
 import com.echo.dto.auth.RegisterRequest;
 import com.echo.entity.User;
+import com.echo.exception.ConflictException;
+import com.echo.exception.ResourceNotFoundException;
+import com.echo.exception.UnauthorizedException;
 import com.echo.mapper.UserMapper;
 import com.echo.repository.UserRepository;
 import com.echo.security.jwt.JwtTokenProvider;
@@ -31,10 +34,10 @@ public class AuthService {
     @Transactional
     public AuthResult register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email вже використовується");
+            throw new ConflictException("Email вже використовується");
         }
         if (userRepository.existsByUsername(request.username())) {
-            throw new IllegalArgumentException("Username вже зайнятий");
+            throw new ConflictException("Username вже зайнятий");
         }
 
         User user = User.builder()
@@ -72,7 +75,7 @@ public class AuthService {
         redisService.saveToken(refreshToken, username);
 
         User user = userRepository.findByUsernameOrEmail(request.login(), request.login())
-                .orElseThrow(() -> new RuntimeException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         return new AuthResult(accessToken, refreshToken, userMapper.toResponse(user));
     }
@@ -80,17 +83,17 @@ public class AuthService {
     @Transactional
     public AuthResult refreshToken(String refreshToken) {
         if (refreshToken == null || !tokenProvider.validateToken(refreshToken)) {
-            throw new RuntimeException("Невалідний підпис Refresh токена");
+            throw new UnauthorizedException("Невалідний підпис Refresh токена");
         }
 
         if (!redisService.isTokenValid(refreshToken)) {
-            throw new RuntimeException("Токен був анульований або застарів. Увійдіть знову.");
+            throw new UnauthorizedException("Токен був анульований або застарів. Увійдіть знову.");
         }
 
         String username = tokenProvider.getUsernameFromJWT(refreshToken);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         redisService.deleteToken(refreshToken);
 

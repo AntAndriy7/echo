@@ -3,9 +3,9 @@ package com.echo.service;
 import com.echo.dto.follow.FollowUserResponse;
 import com.echo.entity.Follow;
 import com.echo.entity.User;
+import com.echo.exception.ResourceNotFoundException;
 import com.echo.repository.FollowRepository;
 import com.echo.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,10 +30,10 @@ public class FollowService {
         }
 
         User follower = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new EntityNotFoundException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         User targetUser = userRepository.findById(targetUserId)
-                .orElseThrow(() -> new EntityNotFoundException("Цільового користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Цільового користувача не знайдено"));
 
         Optional<Follow> existingFollow = followRepository.findByFollowerAndFollowing(follower, targetUser);
 
